@@ -129,6 +129,7 @@ if ephemeral_supported_clouds.include?(cloud)
       parted -- /dev/xvda unit MB mkpart primary ext3 $PART_TWO_START -0
       partprobe
     EOF
+    end
     device='/dev/xvda1'
     my_devices << device
   end
