@@ -65,7 +65,7 @@ current_mnt_device = `mount`.find { |dev| dev.include? " on #{ephemeral_mount_po
 current_mnt_device = current_mnt_device ? current_mnt_device.split[0] : nil
 
 # Only EC2, Google, Azure, and openstack clouds are currently supported
-ephemeral_supported_clouds = ["ec2", "openstack", "azure", "google"]
+ephemeral_supported_clouds = ["ec2", "openstack", "azure", "google", "rackspace-ng"]
 if ephemeral_supported_clouds.include?(cloud)
   # Get a list of ephemeral devices
   # Make sure to skip EBS volumes attached on boot
@@ -121,6 +121,16 @@ if ephemeral_supported_clouds.include?(cloud)
       device = File.basename(disk)
       my_devices << "/dev/#{device}"
     end
+  when 'rackspace-ng'
+    bash "partitioning xvda" do
+      code <<-EOF
+      PART_ONE_SIZE=`parted /dev/xvda unit MB print| awk ' / 1 / {print $3}' | tr -d 'MB'`
+      let PART_TWO_START=$PART_ONE_SIZE+10
+      parted -- /dev/xvda unit MB mkpart primary ext3 $PART_TWO_START -0
+      partprobe
+    EOF
+    device='/dev/xvda1'
+    my_devices << device
   end
 
   # Check if /mnt is actually on a seperate device.
