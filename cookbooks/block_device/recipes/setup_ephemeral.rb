@@ -130,7 +130,7 @@ if ephemeral_supported_clouds.include?(cloud)
       partprobe
     EOF
     end
-    device='/dev/xvda1'
+    device='/dev/xvda2'
     my_devices << device
   end
 
